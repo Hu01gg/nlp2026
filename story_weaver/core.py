@@ -161,19 +161,30 @@ class StoryWeaver:
                     intent = "take"
                     break
             
-            # 2. 获取当前游戏上下文
+            # 2. **先更新游戏状态**（重点：在NLG之前！）
+            if "move" in intent.lower():
+                if "霍格沃茨" in user_input or "城堡" in user_input or "校园" in user_input:
+                    self.game_state.current_location = "Hogwarts Castle"
+                elif "禁林" in user_input or "森林" in user_input:
+                    self.game_state.current_location = "Forbidden Forest"
+                elif "对角巷" in user_input or "街道" in user_input:
+                    self.game_state.current_location = "Diagon Alley"
+                elif "魔法部" in user_input:
+                    self.game_state.current_location = "Ministry of Magic"
+            
+            # 3. 获取**更新后的**游戏上下文
             world_context = self.game_state.get_world_context()
             
-            # 3. RAG - 检索相关的情节片段（真实检索）
+            # 4. RAG - 检索相关的情节片段（真实检索）
             retrieved_segments = self.rag_retriever.retrieve(
                 user_input,
                 top_k=3
             )
             
-            # 4. 一致性检查（简化）
+            # 5. 一致性检查（简化）
             consistency_passed = True
             
-            # 5. NLG - 生成叙事响应
+            # 6. NLG - 生成叙事响应（基于更新后的状态）
             nlg_result = self.nlg_engine.generate_narrative(
                 user_input,
                 world_context,
@@ -181,15 +192,6 @@ class StoryWeaver:
                 intent,
                 []
             )
-            
-            # 6. 更新游戏状态
-            if "move" in intent.lower() and "到" in user_input:
-                if "霍格沃茨" in user_input or "城堡" in user_input:
-                    self.game_state.current_location = "Hogwarts Castle"
-                elif "禁林" in user_input:
-                    self.game_state.current_location = "Forbidden Forest"
-                elif "对角巷" in user_input:
-                    self.game_state.current_location = "Diagon Alley"
             
             # 7. 记录交互并存入RAG（反馈循环）
             response_time = time.time() - start_time

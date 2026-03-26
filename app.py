@@ -8,9 +8,14 @@ from pathlib import Path
 import traceback
 import threading
 import time
+import logging
 
 from story_weaver.core import StoryWeaver
 from config import SystemConfig
+
+# 禁用 Flask 和 Werkzeug 的日志
+logging.getLogger('flask').setLevel(logging.ERROR)
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 app = Flask(__name__, template_folder='web_interface/templates', static_folder='web_interface/static')
 CORS(app)
@@ -317,10 +322,10 @@ def internal_error(error):
     return jsonify({"error": "Internal server error"}), 500
 
 if __name__ == '__main__':
-    print(f"启动Story Weaver Web服务器...")
-    print(f"访问地址: http://{SystemConfig.WEB_HOST}:{SystemConfig.WEB_PORT}")
+    print(f"[Story Weaver] 服务器启动 - http://{SystemConfig.WEB_HOST}:{SystemConfig.WEB_PORT}")
     app.run(
         host=SystemConfig.WEB_HOST,
         port=SystemConfig.WEB_PORT,
-        debug=SystemConfig.DEBUG_MODE
+        debug=SystemConfig.DEBUG_MODE,
+        use_reloader=False
     )

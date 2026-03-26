@@ -62,8 +62,8 @@ class SystemConfig:
     
     # Web接口
     WEB_HOST = "0.0.0.0"
-    WEB_PORT = 5000
-    DEBUG_MODE = True
+    WEB_PORT = 5001
+    DEBUG_MODE = False
 
 # 故事背景配置
 class StoryConfig:
